@@ -68,7 +68,7 @@
  ],
  "icon": "fa fa-bullhorn",
  "links": [],
- "modified": "2025-08-21 17:52:06.919661",
+ "modified": "2025-08-21 18:08:35.263944",
  "modified_by": "Administrator",
  "module": "Akfp Crm",
  "name": "FCRM Campaign",
@@ -107,6 +107,7 @@
   }
  ],
  "quick_entry": 1,
+ "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
