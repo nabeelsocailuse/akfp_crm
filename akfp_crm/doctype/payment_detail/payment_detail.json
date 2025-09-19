@@ -1,0 +1,724 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-06-24 16:01:39.880144",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "donor_details_section",
+  "random_id",
+  "donor_id",
+  "donor_name",
+  "cnic",
+  "donor_type",
+  "donor_desk_id",
+  "donation_type",
+  "plaque_branding",
+  "column_break_uwow",
+  "contact_no",
+  "email",
+  "city",
+  "address",
+  "care_of_details_column",
+  "co_name",
+  "co_contact_no",
+  "co_email",
+  "co_address",
+  "relationship_with_donor",
+  "section_break_iela",
+  "fund_class_id",
+  "pay_service_area",
+  "pay_subservice_area",
+  "subservice_area_copy",
+  "pay_product",
+  "column_break_ibfu",
+  "share_no",
+  "first_share_person_name",
+  "second_share_person_name",
+  "third_share_person_name",
+  "fourth_share_person_name",
+  "fifth_share_person_name",
+  "sixth_share_person_name",
+  "seventh_share_person_name",
+  "receipt_details_section",
+  "receipt_number",
+  "receipt_issued_by",
+  "column_break_airg",
+  "receipt_date",
+  "clearance_date",
+  "accounts_detail_section",
+  "equity_account",
+  "mode_of_payment",
+  "receipt_bank",
+  "account_paid_to",
+  "cash_receipt_date_by_donor_desk",
+  "cash_received_in_finance",
+  "cash_received_by_finance",
+  "special_instruction_for_donor",
+  "special_instruction_by_finance",
+  "column_break_wlkz",
+  "receivable_account",
+  "transaction_attachment",
+  "transaction_no_cheque_no",
+  "reference_date",
+  "remarks",
+  "project_location_section",
+  "project_id",
+  "region",
+  "tehsil",
+  "latitude",
+  "column_break_uvmt",
+  "location",
+  "district",
+  "uc",
+  "longitude",
+  "doubtful_debt_details_section",
+  "bad_debt_expense",
+  "provision_doubtful_debt",
+  "column_break_gevy",
+  "doubtful_debt_amount",
+  "is_written_off",
+  "accounting_dimensions_section",
+  "dimension_col_break",
+  "fund_class",
+  "column_break_mftg",
+  "paid",
+  "is_return",
+  "unknown_to_known",
+  "payment_entry",
+  "other_info_section",
+  "column_break_sezm",
+  "donation_amount",
+  "deduction_amount",
+  "net_amount",
+  "outstanding_amount",
+  "company_currency_column",
+  "base_donation_amount",
+  "base_deduction_amount",
+  "base_net_amount",
+  "base_outstanding_amount"
+ ],
+ "fields": [
+  {
+   "default": "0",
+   "fieldname": "donation_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Donation Amount",
+   "options": "currency",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "fund_class_id.service_area",
+   "fetch_if_empty": 1,
+   "fieldname": "pay_service_area",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Service Area",
+   "options": "Service Area",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "fund_class_id.subservice_area",
+   "fetch_if_empty": 1,
+   "fieldname": "pay_subservice_area",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Subservice Area",
+   "options": "Subservice Area",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "fund_class_id.product",
+   "fetch_if_empty": 1,
+   "fieldname": "pay_product",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Product",
+   "options": "Product",
+   "read_only": 1
+  },
+  {
+   "fieldname": "accounting_dimensions_section",
+   "fieldtype": "Section Break",
+   "hidden": 1,
+   "label": "Accounting Dimensions",
+   "read_only": 1
+  },
+  {
+   "fieldname": "dimension_col_break",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_sezm",
+   "fieldtype": "Column Break",
+   "label": "(Account | Transactional) Currency"
+  },
+  {
+   "default": "0",
+   "fieldname": "deduction_amount",
+   "fieldtype": "Currency",
+   "label": "Deduction Amount",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "outstanding_amount",
+   "fieldtype": "Currency",
+   "label": "Outstanding Amount",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_iela",
+   "fieldtype": "Section Break",
+   "label": "Service Details"
+  },
+  {
+   "fieldname": "column_break_ibfu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "equity_account",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Equity Account",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "receivable_account",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Receivable Account",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "donor_details_section",
+   "fieldtype": "Section Break",
+   "label": "Donor Details"
+  },
+  {
+   "fetch_from": "donor_id.donor_name",
+   "fieldname": "donor_name",
+   "fieldtype": "Data",
+   "label": "Donor Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "donor_id.donor_type",
+   "fieldname": "donor_type",
+   "fieldtype": "Link",
+   "label": "Donor Type",
+   "options": "Donor Type",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_uwow",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "donor_id.contact_no",
+   "fieldname": "contact_no",
+   "fieldtype": "Data",
+   "label": "Contact No",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "donor_id.email",
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "donor_id.city",
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "label": "City",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "donor_id.address",
+   "fieldname": "address",
+   "fieldtype": "Small Text",
+   "label": "Address",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "donor_id.co_name",
+   "fieldname": "co_name",
+   "fieldtype": "Data",
+   "label": "C/O Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "donor_id.contact_no",
+   "fieldname": "co_contact_no",
+   "fieldtype": "Data",
+   "label": "C/O Contact No",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "donor_id.co_email",
+   "fieldname": "co_email",
+   "fieldtype": "Data",
+   "label": "C/O Email",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "donor_id.co_address",
+   "fieldname": "co_address",
+   "fieldtype": "Data",
+   "label": "C/O Address",
+   "read_only": 1
+  },
+  {
+   "fieldname": "accounts_detail_section",
+   "fieldtype": "Section Break",
+   "label": "Accounts Detail"
+  },
+  {
+   "fieldname": "column_break_wlkz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "mode_of_payment",
+   "fieldtype": "Link",
+   "label": "Mode of Payment",
+   "options": "Mode of Payment"
+  },
+  {
+   "depends_on": "eval: doc.mode_of_payment!='Cash' && doc.mode_of_payment!=undefined && doc.mode_of_payment!=\"\";",
+   "fieldname": "transaction_no_cheque_no",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "Transaction No/ Cheque No",
+   "mandatory_depends_on": "eval: doc.mode_of_payment == \"bank\" || doc.mode_of_payment == \"Cheque\" || doc.mode_of_payment == \"Bank Draft\" "
+  },
+  {
+   "fieldname": "donor_id",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Donor ID",
+   "options": "Donor",
+   "reqd": 1
+  },
+  {
+   "fieldname": "care_of_details_column",
+   "fieldtype": "Column Break",
+   "label": "Care Of Details"
+  },
+  {
+   "fetch_from": "donor_id.cnic",
+   "fieldname": "cnic",
+   "fieldtype": "Data",
+   "label": "CNIC",
+   "read_only": 1
+  },
+  {
+   "fieldname": "receipt_details_section",
+   "fieldtype": "Section Break",
+   "label": "Receipt Details"
+  },
+  {
+   "fieldname": "receipt_number",
+   "fieldtype": "Data",
+   "label": "Receipt Number",
+   "unique": 1
+  },
+  {
+   "fieldname": "column_break_airg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "receipt_issued_by",
+   "fieldtype": "Data",
+   "label": "Receipt Issued By"
+  },
+  {
+   "fieldname": "receipt_date",
+   "fieldtype": "Date",
+   "label": "Receipt Date"
+  },
+  {
+   "depends_on": "mode_of_payment",
+   "fieldname": "account_paid_to",
+   "fieldtype": "Link",
+   "label": "Account Paid To",
+   "mandatory_depends_on": "eval: doc.mode_of_payment == \"bank\" || doc.mode_of_payment == \"Cheque\" || doc.mode_of_payment == \"Bank Draft\" ",
+   "options": "Account"
+  },
+  {
+   "default": "0",
+   "fieldname": "paid",
+   "fieldtype": "Check",
+   "label": "Paid",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "net_amount",
+   "fieldtype": "Currency",
+   "label": "Net Amount",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "other_info_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "payment_entry",
+   "fieldtype": "Data",
+   "label": "Payment Entry",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "donor_id.relationship_with_donor",
+   "fieldname": "relationship_with_donor",
+   "fieldtype": "Data",
+   "label": "Relationship With Donor",
+   "read_only": 1
+  },
+  {
+   "fieldname": "project_location_section",
+   "fieldtype": "Section Break",
+   "label": "Project Location"
+  },
+  {
+   "fetch_from": "project_id.custom_region",
+   "fieldname": "region",
+   "fieldtype": "Link",
+   "label": "Region",
+   "options": "Region",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "project_id.custom_tehsil",
+   "fieldname": "tehsil",
+   "fieldtype": "Link",
+   "label": "Tehsil",
+   "options": "Tehsil",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "project_id.custom_latitude",
+   "fieldname": "latitude",
+   "fieldtype": "Data",
+   "label": "Latitude",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_uvmt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "project_id.custom_district",
+   "fieldname": "district",
+   "fieldtype": "Link",
+   "label": "District",
+   "options": "District",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "project_id.custom_uc",
+   "fieldname": "uc",
+   "fieldtype": "Link",
+   "label": "UC",
+   "options": "UC",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "project_id.custom_longitude",
+   "fieldname": "longitude",
+   "fieldtype": "Data",
+   "label": "Longitude",
+   "read_only": 1
+  },
+  {
+   "fieldname": "project_id",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Project ID",
+   "options": "Project"
+  },
+  {
+   "default": "0",
+   "fieldname": "base_donation_amount",
+   "fieldtype": "Currency",
+   "label": "Base Donation Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "base_outstanding_amount",
+   "fieldtype": "Currency",
+   "label": "Base Outstanding Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "donation_type",
+   "fieldtype": "Link",
+   "label": "Intention",
+   "options": "Donation Type",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval: doc.mode_of_payment!='Cash' && doc.mode_of_payment!=undefined && doc.mode_of_payment!=\"\";",
+   "fieldname": "reference_date",
+   "fieldtype": "Date",
+   "in_standard_filter": 1,
+   "label": "Cheque / Reference Date",
+   "mandatory_depends_on": "eval: doc.mode_of_payment == \"bank\" || doc.mode_of_payment == \"Cheque\" || doc.mode_of_payment == \"Bank Draft\" "
+  },
+  {
+   "fieldname": "random_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Random ID",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_return",
+   "fieldtype": "Check",
+   "label": "Is Return"
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Data",
+   "label": "Location"
+  },
+  {
+   "fieldname": "special_instruction_for_donor",
+   "fieldtype": "Data",
+   "label": "Special Instruction for Donor"
+  },
+  {
+   "fieldname": "special_instruction_by_finance",
+   "fieldtype": "Data",
+   "label": "Special Instruction By Finance"
+  },
+  {
+   "fieldname": "clearance_date",
+   "fieldtype": "Date",
+   "label": "Clearance Date"
+  },
+  {
+   "depends_on": "eval: doc.mode_of_payment === 'Cash'",
+   "fieldname": "cash_receipt_date_by_donor_desk",
+   "fieldtype": "Date",
+   "label": "Cash Receipt Date By Donor Desk"
+  },
+  {
+   "depends_on": "eval: doc.mode_of_payment === 'Cash'",
+   "fieldname": "cash_received_in_finance",
+   "fieldtype": "Date",
+   "label": "Cash Received In Finance"
+  },
+  {
+   "depends_on": "eval: doc.mode_of_payment === 'Cash'",
+   "fieldname": "cash_received_by_finance",
+   "fieldtype": "Link",
+   "label": "Cash Received By Finance ",
+   "options": "Employee"
+  },
+  {
+   "depends_on": "eval:doc.pay_subservice_area==\"Qurbani\";",
+   "fieldname": "share_no",
+   "fieldtype": "Select",
+   "label": "Share No",
+   "mandatory_depends_on": "eval:doc.pay_subservice_area==\"Qurbani\";",
+   "options": "\n1\n2\n3\n4\n5\n6\n7"
+  },
+  {
+   "depends_on": "eval: doc.mode_of_payment!='Cash' && doc.mode_of_payment!=undefined && doc.mode_of_payment!=\"\";",
+   "fieldname": "transaction_attachment",
+   "fieldtype": "Attach Image",
+   "label": "Transaction Attachment"
+  },
+  {
+   "depends_on": "eval:doc.pay_subservice_area==\"Qurbani\" && doc.share_no >= 1;",
+   "fieldname": "first_share_person_name",
+   "fieldtype": "Data",
+   "label": "First Share Person Name",
+   "mandatory_depends_on": "eval:doc.pay_subservice_area==\"Qurbani\" && doc.share_no >= 1;"
+  },
+  {
+   "depends_on": "eval:doc.pay_subservice_area==\"Qurbani\" && doc.share_no >= 2;",
+   "fieldname": "second_share_person_name",
+   "fieldtype": "Data",
+   "label": "Second Share Person Name",
+   "mandatory_depends_on": "eval:doc.pay_subservice_area==\"Qurbani\" && doc.share_no >= 2;"
+  },
+  {
+   "depends_on": "eval:doc.pay_subservice_area==\"Qurbani\" && doc.share_no >= 3;",
+   "fieldname": "third_share_person_name",
+   "fieldtype": "Data",
+   "label": "Third Share Person Name",
+   "mandatory_depends_on": "eval:doc.pay_subservice_area==\"Qurbani\" && doc.share_no >= 3;"
+  },
+  {
+   "depends_on": "eval:doc.pay_subservice_area==\"Qurbani\" && doc.share_no >= 4;",
+   "fieldname": "fourth_share_person_name",
+   "fieldtype": "Data",
+   "label": "Fourth Share Person Name",
+   "mandatory_depends_on": "eval:doc.pay_subservice_area==\"Qurbani\" && doc.share_no >= 4;"
+  },
+  {
+   "depends_on": "eval:doc.pay_subservice_area==\"Qurbani\" && doc.share_no >= 5;",
+   "fieldname": "fifth_share_person_name",
+   "fieldtype": "Data",
+   "label": "Fifth Share Person Name",
+   "mandatory_depends_on": "eval:doc.pay_subservice_area==\"Qurbani\" && doc.share_no >= 5;"
+  },
+  {
+   "depends_on": "eval:doc.pay_subservice_area==\"Qurbani\" && doc.share_no >= 6;",
+   "fieldname": "sixth_share_person_name",
+   "fieldtype": "Data",
+   "label": "SIxth Share Person Name",
+   "mandatory_depends_on": "eval:doc.pay_subservice_area==\"Qurbani\" && doc.share_no >= 6;"
+  },
+  {
+   "depends_on": "eval:doc.pay_subservice_area==\"Qurbani\" && doc.share_no >= 7;",
+   "fieldname": "seventh_share_person_name",
+   "fieldtype": "Data",
+   "label": "Seventh Share Person Name",
+   "mandatory_depends_on": "eval:doc.pay_subservice_area==\"Qurbani\" && doc.share_no >= 7;"
+  },
+  {
+   "fieldname": "doubtful_debt_details_section",
+   "fieldtype": "Section Break",
+   "label": "Doubtful Debt Details"
+  },
+  {
+   "fieldname": "column_break_gevy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "provision_doubtful_debt",
+   "fieldname": "doubtful_debt_amount",
+   "fieldtype": "Currency",
+   "label": "Doubtful Debt Amount",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "plaque_branding",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Plaque/Branding"
+  },
+  {
+   "default": "0",
+   "fieldname": "unknown_to_known",
+   "fieldtype": "Check",
+   "label": " Unknown To Known",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval: doc.mode_of_payment==\"Cheque\"",
+   "fieldname": "receipt_bank",
+   "fieldtype": "Link",
+   "label": "Receipt Bank",
+   "options": "Bank"
+  },
+  {
+   "fieldname": "company_currency_column",
+   "fieldtype": "Column Break",
+   "label": "Company Currency"
+  },
+  {
+   "default": "0",
+   "fieldname": "base_deduction_amount",
+   "fieldtype": "Currency",
+   "label": "Base Deduction Amount",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "base_net_amount",
+   "fieldtype": "Currency",
+   "label": "Base Net Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_mftg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "bad_debt_expense",
+   "fieldtype": "Link",
+   "label": "Bad Debt Expense",
+   "options": "Account",
+   "read_only": 1
+  },
+  {
+   "fieldname": "provision_doubtful_debt",
+   "fieldtype": "Link",
+   "label": "Provision Doubtful Debt",
+   "options": "Account",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "depends_on": "provision_doubtful_debt",
+   "fieldname": "is_written_off",
+   "fieldtype": "Check",
+   "label": "Is Written Off",
+   "read_only": 1
+  },
+  {
+   "fieldname": "fund_class",
+   "fieldtype": "Link",
+   "label": "Fund Class",
+   "options": "Fund Class"
+  },
+  {
+   "fieldname": "fund_class_id",
+   "fieldtype": "Link",
+   "label": "Fund Class Id",
+   "options": "Fund Class"
+  },
+  {
+   "fetch_from": "donor_id.donor_desk",
+   "fieldname": "donor_desk_id",
+   "fieldtype": "Link",
+   "label": "Donor Desk Id",
+   "options": "Donor Desk",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "fund_class_id.subservice_area",
+   "fetch_if_empty": 1,
+   "fieldname": "subservice_area_copy",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Subservice Area Copy",
+   "options": "Subservice Area",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-08-18 12:11:36.547327",
+ "modified_by": "Administrator",
+ "module": "AKF Accounts",
+ "name": "Payment Detail",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
