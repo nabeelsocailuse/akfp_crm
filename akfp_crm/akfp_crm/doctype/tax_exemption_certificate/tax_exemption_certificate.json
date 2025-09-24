@@ -1,0 +1,120 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "TEC-.YYYY.-.##### ",
+ "creation": "2025-09-19 11:58:03.706518",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "donor",
+  "donor_name",
+  "donor_address",
+  "date_of_issue",
+  "donation_date",
+  "generated_timestamp",
+  "column_break_tdee",
+  "donor_cnic__ntn",
+  "certificate_number",
+  "total_donation",
+  "payment_method",
+  "receipt_number"
+ ],
+ "fields": [
+  {
+   "fieldname": "donor",
+   "fieldtype": "Link",
+   "label": "Donor",
+   "options": "Donor"
+  },
+  {
+   "fetch_from": "donor.donor_name",
+   "fieldname": "donor_name",
+   "fieldtype": "Data",
+   "label": "Donor Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "donor.address",
+   "fieldname": "donor_address",
+   "fieldtype": "Data",
+   "label": "Donor Address",
+   "read_only": 1
+  },
+  {
+   "fieldname": "date_of_issue",
+   "fieldtype": "Date",
+   "label": "Date of Issue"
+  },
+  {
+   "fieldname": "donation_date",
+   "fieldtype": "Date",
+   "label": "Donation Date"
+  },
+  {
+   "fieldname": "generated_timestamp",
+   "fieldtype": "Datetime",
+   "hidden": 1,
+   "label": "Generated Timestamp"
+  },
+  {
+   "fieldname": "column_break_tdee",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "donor.cnic",
+   "fieldname": "donor_cnic__ntn",
+   "fieldtype": "Data",
+   "label": "Donor CNIC / NTN",
+   "read_only": 1
+  },
+  {
+   "fieldname": "certificate_number",
+   "fieldtype": "Data",
+   "label": "Certificate Number",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_donation",
+   "fieldtype": "Data",
+   "label": "Total Donation"
+  },
+  {
+   "fieldname": "payment_method",
+   "fieldtype": "Link",
+   "label": "Payment Method",
+   "options": "Mode of Payment"
+  },
+  {
+   "fieldname": "receipt_number",
+   "fieldtype": "Data",
+   "label": "Receipt Number"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-09-22 20:48:01.401469",
+ "modified_by": "Administrator",
+ "module": "Akfp Crm",
+ "name": "Tax Exemption Certificate",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
