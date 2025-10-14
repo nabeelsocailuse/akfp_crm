@@ -26,6 +26,7 @@ class Donor(Document):
 		verify_email(self)
 		self.verify_cnic()
 		self.validate_duplicate_cnic()
+		self.validate_unique_unknown_identity()
 		self.validate_proscribed_person()
 		self.validate_default_currency()
 		self.validate_default_account()
@@ -77,6 +78,22 @@ class Donor(Document):
 				""", title="Duplicate CNIC")
 		
 		compare_cnic_with_other()
+
+	def validate_unique_unknown_identity(self):
+		"""Ensure only one Donor with donor_identity = 'Unknown' exists."""
+		try:
+			if getattr(self, "donor_identity", None) != "Unknown":
+				return
+			# Allow existing record to save if it is the same doc; block others
+			exists = frappe.db.exists("Donor", {
+				"donor_identity": "Unknown",
+				"name": ["!=", self.name],
+			})
+			if exists:
+				frappe.throw("Donor with this donor_identity already available", title="Duplicate Donor Identity")
+		except Exception:
+			# Fail-safe: do not block saves due to DB errors unrelated to the rule
+			pass
 	
 	def validate_proscribed_person(self):
 		formatted_cnic = str(self.cnic).replace("-", "")
@@ -133,7 +150,9 @@ class Donor(Document):
 	def after_insert(self):
 		self.update_status()
 		# 21-08-2025 nabeel saleem
-		frappe.enqueue(create_address_and_contact, self=self, publish_progress=False)
+		# Skip contact creation if donor was created from lead conversion (contact already exists)
+		if not self.lead:
+			frappe.enqueue(create_address_and_contact, self=self, publish_progress=False)
 		
 
 	def update_status(self):

@@ -88,10 +88,24 @@ frappe.ui.form.on('Donor', {
             frm.set_df_property('contact_no', 'description', "");
         }
     },
-    validate: function (frm) {
+    validate: async function (frm) {
         if (frm.doc.contact_no) {
             const labelName = __(frm.fields_dict['contact_no'].df.label);
             internationalPhoneValidation(frm.doc.contact_no, labelName);
+        }
+        // Block saving a second Unknown donor identity (client-side UX)
+        try {
+            if (frm.doc.donor_identity === "Unknown") {
+                const existing = await frappe.db.exists('Donor', {
+                    donor_identity: 'Unknown',
+                    name: ['!=', frm.doc.name]
+                });
+                if (existing) {
+                    frappe.throw(__('Donor with this donor_identity already available'));
+                }
+            }
+        } catch (e) {
+            // Non-blocking: let server-side enforce if client check fails
         }
     },
     company: function (frm) {

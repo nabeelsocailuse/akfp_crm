@@ -1401,29 +1401,30 @@ def get_donation_details(filters):
 # 	values = frappe._dict(ast.literal_eval(values))
 
 @frappe.whitelist()
-def get_fund_class_details(fund_class_id, company=None):
+def get_fund_class_details(fund_class=None, fund_class_id=None, company=None):
     """
     Get fund class details including service area, subservice area, product, and account information.
-    This method is called from the frontend when a fund class is selected in payment details.
+    Accepts either 'fund_class' or 'fund_class_id' for backward compatibility.
     """
     try:
-        if not fund_class_id:
+        fund_class_value = fund_class or fund_class_id
+        if not fund_class_value:
             return {}
        
         # Get the fund class document
-        fund_class = frappe.get_doc("Fund Class", fund_class_id)
+        fund_class_doc = frappe.get_doc("Fund Class", fund_class_value)
        
         # Get basic fund class details
         result = {
-            'service_area': fund_class.service_area,
-            'subservice_area': fund_class.subservice_area,
-            'product': fund_class.product,
-            'fund_class_name': fund_class.fund_class_name
+            'service_area': fund_class_doc.service_area,
+            'subservice_area': fund_class_doc.subservice_area,
+            'product': fund_class_doc.product,
+            'fund_class_name': fund_class_doc.fund_class_name
         }
        
         # Get account defaults if company is provided
-        if company and fund_class.accounts_default:
-            for account_default in fund_class.accounts_default:
+        if company and fund_class_doc.accounts_default:
+            for account_default in fund_class_doc.accounts_default:
                 if account_default.company == company:
                     result.update({
                         'equity_account': account_default.equity_account,
@@ -1433,8 +1434,8 @@ def get_fund_class_details(fund_class_id, company=None):
                     break
        
         # If no company-specific accounts found, try to get any available accounts
-        if not company and fund_class.accounts_default:
-            for account_default in fund_class.accounts_default:
+        if not company and fund_class_doc.accounts_default:
+            for account_default in fund_class_doc.accounts_default:
                 result.update({
                     'equity_account': account_default.equity_account,
                     'receivable_account': account_default.receivable_account,
