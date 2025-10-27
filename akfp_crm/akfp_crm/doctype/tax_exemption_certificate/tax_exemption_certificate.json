@@ -10,14 +10,12 @@
   "donor_name",
   "donor_address",
   "date_of_issue",
-  "donation_date",
   "generated_timestamp",
   "column_break_tdee",
   "donor_cnic__ntn",
   "certificate_number",
-  "total_donation",
-  "payment_method",
-  "receipt_number"
+  "fiscal_year",
+  "total_donation"
  ],
  "fields": [
   {
@@ -41,14 +39,10 @@
    "read_only": 1
   },
   {
+   "default": "Today",
    "fieldname": "date_of_issue",
    "fieldtype": "Date",
    "label": "Date of Issue"
-  },
-  {
-   "fieldname": "donation_date",
-   "fieldtype": "Date",
-   "label": "Donation Date"
   },
   {
    "fieldname": "generated_timestamp",
@@ -79,21 +73,16 @@
    "label": "Total Donation"
   },
   {
-   "fieldname": "payment_method",
+   "fieldname": "fiscal_year",
    "fieldtype": "Link",
-   "label": "Payment Method",
-   "options": "Mode of Payment"
-  },
-  {
-   "fieldname": "receipt_number",
-   "fieldtype": "Data",
-   "label": "Receipt Number"
+   "label": "Fiscal Year",
+   "options": "Fiscal Year"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-09-22 20:48:01.401469",
+ "modified": "2025-10-27 15:03:32.615863",
  "modified_by": "Administrator",
  "module": "Akfp Crm",
  "name": "Tax Exemption Certificate",

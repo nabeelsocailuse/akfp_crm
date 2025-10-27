@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tax Exemption Certificate Verification</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .verification-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 20px;
+            border-radius: 25px;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .certificate-info {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .info-row {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 20px;
+            padding: 15px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            color: #212529;
+            font-size: 1.05em;
+            word-break: break-word;
+        }
+
+        .loading, .error {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .loading {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .error {
+            color: #dc3545;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+        .footer strong {
+            color: #495057;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .info-row {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .info-label {
+                font-size: 0.85em;
+            }
+
+            .content {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏆 Tax Exemption Certificate</h1>
+            <p>Official Certificate of Tax Exemption</p>
+            <div class="verification-badge" id="verificationStatus">Verified ✓</div>
+        </div>
+
+        <div class="content">
+            <div id="loading" class="loading">
+                <p>Loading certificate details...</p>
+            </div>
+
+            <div id="error" class="error" style="display: none;">
+                <h3>Certificate Not Found</h3>
+                <p>This certificate does not exist or may have been invalidated.</p>
+            </div>
+
+            <div id="certificate" class="certificate-info" style="display: none;">
+                <div class="info-row">
+                    <div class="info-label">Certificate Number</div>
+                    <div class="info-value" id="cert_number"></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Donor Name</div>
+                    <div class="info-value" id="donor_name"></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Donor Address</div>
+                    <div class="info-value" id="donor_address"></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">CNIC / NTN</div>
+                    <div class="info-value" id="donor_cnic"></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Date of Issue</div>
+                    <div class="info-value" id="date_of_issue"></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Total Donation Amount</div>
+                    <div class="info-value" id="total_donation"></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Issue Date</div>
+                    <div class="info-value" id="generated_timestamp"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>Al-Khidmat Foundation</strong><br>
+            This certificate has been verified and is authentic.</p>
+        </div>
+    </div>
+
+    <script>
+        async function loadCertificate() {
+            const params = new URLSearchParams(window.location.search);
+            const name = params.get('name');
+            
+            if (!name) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/method/akfp_crm.akfp_crm.akfp_crm.doctype.tax_exemption_certificate.tax_exemption_certificate.get_certificate_details?name=${name}`);
+                const data = await response.json();
+
+                if (data.message && data.message.valid) {
+                    const cert = data.message.certificate;
+                    document.getElementById('cert_number').textContent = cert.certificate_number || 'N/A';
+                    document.getElementById('donor_name').textContent = cert.donor_name || cert.donor || 'N/A';
+                    document.getElementById('donor_address').textContent = cert.donor_address || 'N/A';
+                    document.getElementById('donor_cnic').textContent = cert.donor_cnic__ntn || 'N/A';
+                    document.getElementById('date_of_issue').textContent = cert.date_of_issue || 'N/A';
+                    document.getElementById('total_donation').textContent = cert.total_donation || 'N/A';
+                    document.getElementById('generated_timestamp').textContent = cert.generated_timestamp || 'N/A';
+                    
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('certificate').style.display = 'block';
+                } else {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('error').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading certificate:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+            }
+        }
+
+        window.onload = loadCertificate;
+    </script>
+</body>
+</html>
+

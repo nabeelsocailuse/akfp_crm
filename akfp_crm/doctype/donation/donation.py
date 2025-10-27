@@ -94,10 +94,17 @@ class Donation(Document):
 
 		def reset_mode_of_payment(row):
 			if(self.contribution_type == "Pledge"):
-				row.mode_of_payment = None
-				row.account_paid_to = None
-				row.transaction_no_cheque_no = ""
-				row.reference_date = None
+				# Only reset if no explicit mode of payment is set by user
+				# This preserves user-entered payment details for Bank Draft, etc.
+				if(not row.mode_of_payment):
+					row.mode_of_payment = None
+					row.account_paid_to = None
+					row.transaction_no_cheque_no = ""
+					row.reference_date = None
+				# If mode_of_payment is set (like Bank Draft), preserve the payment details
+				# but still clear account_paid_to if not set
+				elif(not row.account_paid_to):
+					row.account_paid_to = None
 			elif(self.donor_identity in ["Merchant - Known", "Merchant - Unknown"]):
 				row.mode_of_payment = self.mode_of_payment
 				row.account_paid_to = self.account_paid_to
@@ -921,15 +928,16 @@ def get_donors_list(donation_id, is_doubtful_debt: bool, is_written_off:bool, is
 		pass
 		# conditions = " and is_written_off=0 "
 	result = frappe.db.sql(f""" 
-				Select 
-					donor_id, idx, (outstanding_amount-doubtful_debt_amount) as remaining_amount
-				From 
-					`tabPayment Detail` 
-				Where
-					outstanding_amount>0 and parent='{donation_id}' {conditions} 
-				Having 
-					remaining_amount
-				""", as_dict=0)
+			Select 
+				COALESCE(donor_id, donor) as donor_id, idx, (outstanding_amount-doubtful_debt_amount) as remaining_amount
+			From 
+				`tabPayment Detail` 
+			Where
+				outstanding_amount>0 and parent='{donation_id}' {conditions}
+				and (donor_id IS NOT NULL OR donor IS NOT NULL)
+			Having 
+				remaining_amount
+			""", as_dict=0)
 				
 	donors_list = {d[0] for d in result} if(result) else []
 	idx_list = {}

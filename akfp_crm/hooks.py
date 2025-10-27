@@ -55,6 +55,13 @@ app_license = "mit"
 # automatically create page for each record of this doctype
 # website_generators = ["Web Page"]
 
+# Website Route Rules
+# --------------------
+# Note: Verification page is served from public/www/verify-certificate.html
+
+# Register custom page renderers
+page_renderer = ["akfp_crm.akfp_crm.page_renderers.verification_page.VerificationPageRenderer"]
+
 # Jinja
 # ----------
 
