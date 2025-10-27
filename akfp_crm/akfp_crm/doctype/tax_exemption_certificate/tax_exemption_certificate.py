@@ -8,10 +8,20 @@ import base64
 import qrcode
 import io
 from frappe.model.document import Document
-from frappe.utils import now_datetime, get_url
+from frappe.utils import now_datetime, get_url, today
+from frappe import _
 
 
 class TaxExemptionCertificate(Document): 
+    def validate(self):
+        """Validate the certificate data before save"""
+        # Validate that date_of_issue is not in the future
+        if self.date_of_issue and self.date_of_issue > today():
+            frappe.throw(
+                _("Date of Issue cannot be a future date. Please select today or a past date."),
+                title=_("Invalid Date")
+            )
+    
     def before_insert(self):
         # Auto-generate certificate number in format: TEX-2025-001
         if not self.certificate_number:

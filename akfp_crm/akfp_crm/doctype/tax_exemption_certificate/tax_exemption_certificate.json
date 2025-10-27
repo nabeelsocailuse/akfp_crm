@@ -42,7 +42,8 @@
    "default": "Today",
    "fieldname": "date_of_issue",
    "fieldtype": "Date",
-   "label": "Date of Issue"
+   "label": "Date of Issue",
+   "description": "Date cannot exceed today's date"
   },
   {
    "fieldname": "generated_timestamp",

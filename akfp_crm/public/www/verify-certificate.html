@@ -214,10 +214,6 @@
                     <div class="info-label">Total Donation Amount</div>
                     <div class="info-value" id="total_donation"></div>
                 </div>
-                <div class="info-row">
-                    <div class="info-label">Generated On</div>
-                    <div class="info-value" id="generated_timestamp"></div>
-                </div>
             </div>
         </div>
 
@@ -284,8 +280,6 @@
                         });
                     };
                     document.getElementById('total_donation').textContent = formatCurrency(cert.total_donation);
-                    
-                    document.getElementById('generated_timestamp').textContent = formatDate(cert.generated_timestamp);
                     
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('certificate').style.display = 'block';
