@@ -42,8 +42,7 @@
    "default": "Today",
    "fieldname": "date_of_issue",
    "fieldtype": "Date",
-   "label": "Date of Issue",
-   "description": "Date cannot exceed today's date"
+   "label": "Date of Issue"
   },
   {
    "fieldname": "generated_timestamp",
@@ -71,7 +70,8 @@
   {
    "fieldname": "total_donation",
    "fieldtype": "Data",
-   "label": "Total Donation"
+   "label": "Total Donation",
+   "read_only": 1
   },
   {
    "fieldname": "fiscal_year",
@@ -83,7 +83,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-10-27 15:03:32.615863",
+ "modified": "2025-10-28 12:10:08.767642",
  "modified_by": "Administrator",
  "module": "Akfp Crm",
  "name": "Tax Exemption Certificate",
