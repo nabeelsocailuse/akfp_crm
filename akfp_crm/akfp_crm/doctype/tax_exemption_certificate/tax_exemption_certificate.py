@@ -135,36 +135,8 @@ def get_total_donation(donor, fiscal_year=None):
             ),
         }
 
-    donor_currency = frappe.db.get_value("Donor", donor, "default_currency")
-    default_currency = frappe.db.get_single_value("Global Defaults", "default_currency")
-    show_currency_symbol = bool(donor_currency)
-    currency_symbol = frappe.db.get_value("Currency", donor_currency, "symbol") if donor_currency else None
+    return {"total_donation": remaining_total}
 
-    # FALLBACK_SYMBOLS = {
-    #     # "USD": "$",
-    #     "EUR": "€",
-    #     "GBP": "£",
-    #     "PKR": "Rs",
-    #     "YER": "﷼",
-    #     "UZS": "лв",
-    #     "AED": "د.إ",
-    #     "SAR": "﷼",
-    #     "QAR": "﷼",
-    #     "KWD": "د.ك",
-    #     "OMR": "ر.ع.",
-    #     "INR": "₹",
-    #     "CNY": "¥",
-    #     "JPY": "¥",
-    # }
-    # if not currency_symbol and donor_currency:
-    #     currency_symbol = FALLBACK_SYMBOLS.get(donor_currency)
-
-    return {
-        "total_donation": remaining_total,
-        "currency": donor_currency,
-        "currency_symbol": currency_symbol,
-        "show_currency_symbol": show_currency_symbol,
-    }
 
 
 

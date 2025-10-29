@@ -9,6 +9,7 @@
   "donor",
   "donor_name",
   "donor_address",
+  "currency",
   "date_of_issue",
   "generated_timestamp",
   "column_break_tdee",
@@ -69,8 +70,9 @@
   },
   {
    "fieldname": "total_donation",
-   "fieldtype": "Data",
+   "fieldtype": "Currency",
    "label": "Total Donation",
+   "options": "currency",
    "read_only": 1
   },
   {
@@ -78,12 +80,21 @@
    "fieldtype": "Link",
    "label": "Fiscal Year",
    "options": "Fiscal Year"
+  },
+  {
+   "fetch_from": "donor.default_currency",
+   "fetch_if_empty": 1,
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Currency",
+   "options": "Currency"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-10-28 12:10:08.767642",
+ "modified": "2025-10-29 18:18:22.361578",
  "modified_by": "Administrator",
  "module": "Akfp Crm",
  "name": "Tax Exemption Certificate",
