@@ -17,6 +17,8 @@ frappe.ui.form.on("Tax Exemption Certificate", {
   after_save: function (frm) {
     // Make total_donation read-only after saving
     frm.set_df_property("donor", "read_only", 1);
+    frm.set_df_property("fiscal_year", "read_only", 1);
+    frm.set_df_property("date_of_issue", "read_only", 1)
   },
 });
 

@@ -129,13 +129,12 @@ page_renderer = ["akfp_crm.akfp_crm.page_renderers.verification_page.Verificatio
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+    "Donation": {
+        "on_submit": "akfp_crm.return_emails.send_return_donation_email"
+    }
+}
+
 
 # Scheduled Tasks
 # ---------------
