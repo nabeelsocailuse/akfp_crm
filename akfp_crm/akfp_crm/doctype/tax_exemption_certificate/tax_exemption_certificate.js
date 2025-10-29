@@ -59,10 +59,16 @@ function fetch_total_donation(frm) {
     callback: function (r) {
       if (!r.message) return;
 
-      const { total_donation, message } = r.message;
+      const { total_donation, message, currency, currency_symbol, show_currency_symbol } = r.message;
 
       if (total_donation) {
-        frm.set_value("total_donation", formatInternationalNumber(total_donation));
+        const formatted = formatInternationalNumber(total_donation);
+        if (show_currency_symbol && (currency_symbol || currency)) {
+          const sym = currency_symbol || currency;
+          frm.set_value("total_donation", `${sym} ${formatted}`);
+        } else {
+          frm.set_value("total_donation", formatted);
+        }
       } else {
         frappe.msgprint({
           title: __("No Donations Found"),
