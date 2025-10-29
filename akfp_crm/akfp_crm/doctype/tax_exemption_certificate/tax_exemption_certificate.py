@@ -82,7 +82,7 @@ class TaxExemptionCertificate(Document):
 
 
 @frappe.whitelist()
-def get_total_donation(donor, fiscal_year=None):   # fetching total donation through donor and fiscal year 
+def get_total_donation(donor, fiscal_year=None):
     if not donor:
         return {"total_donation": 0, "message": _("Please select a donor first.")}
     if not fiscal_year:
@@ -94,29 +94,47 @@ def get_total_donation(donor, fiscal_year=None):   # fetching total donation thr
     if not fy:
         return {"total_donation": 0, "message": _("Fiscal Year not found.")}
 
-    # Exclude donations where contribution_type = 'Pledge'
-    total = frappe.db.sql(
+    # 🧮 Sum of all PAID donations (excluding pledge)
+    paid_total = frappe.db.sql(
         """
-        SELECT SUM(pd.donation_amount) AS total_donation
+        SELECT SUM(pd.donation_amount) AS total
         FROM `tabPayment Detail` pd
         INNER JOIN `tabDonation` dn ON dn.name = pd.parent
         WHERE pd.donor = %s
           AND dn.due_date BETWEEN %s AND %s
           AND dn.docstatus = 1
-          AND dn.status = 'Paid'
+          AND dn.status IN ('Paid', 'Partly Paid', 'Overdue', 'Partly Return', 'Credit Note Issued')
           AND (dn.contribution_type IS NULL OR dn.contribution_type != 'Pledge')
         """,
         (donor, fy.year_start_date, fy.year_end_date),
         as_dict=True,
-    )[0].total_donation or 0
+    )[0].total or 0
 
-    if total == 0:
+    # 💸 Sum of all RETURN donations
+    returned_total = frappe.db.sql(
+        """
+        SELECT SUM(pd.donation_amount) AS total
+        FROM `tabPayment Detail` pd
+        INNER JOIN `tabDonation` dn ON dn.name = pd.parent
+        WHERE pd.donor = %s
+          AND dn.due_date BETWEEN %s AND %s
+          AND dn.docstatus = 1
+          AND dn.status = 'Return'
+        """,
+        (donor, fy.year_start_date, fy.year_end_date),
+        as_dict=True,
+    )[0].total or 0
+
+    remaining_total = paid_total - returned_total
+
+    if remaining_total <= 0:
         return {
             "total_donation": 0,
-            "message": _("No paid (non-pledge) donations found for donor '{0}' in fiscal year '{1}'.").format(
+            "message": _("No valid donation amount found for donor '{0}' in fiscal year '{1}'.").format(
                 donor, fiscal_year
             ),
         }
 
-    return {"total_donation": total}
+    return {"total_donation": remaining_total}
+
 
