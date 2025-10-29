@@ -82,7 +82,7 @@ class TaxExemptionCertificate(Document):
 
 
 @frappe.whitelist()
-def get_total_donation(donor, fiscal_year=None):   # fetching total donaiton through donor and fiscal year 
+def get_total_donation(donor, fiscal_year=None):   # fetching total donation through donor and fiscal year 
     if not donor:
         return {"total_donation": 0, "message": _("Please select a donor first.")}
     if not fiscal_year:
@@ -94,6 +94,7 @@ def get_total_donation(donor, fiscal_year=None):   # fetching total donaiton thr
     if not fy:
         return {"total_donation": 0, "message": _("Fiscal Year not found.")}
 
+    # Exclude donations where contribution_type = 'Pledge'
     total = frappe.db.sql(
         """
         SELECT SUM(pd.donation_amount) AS total_donation
@@ -103,6 +104,7 @@ def get_total_donation(donor, fiscal_year=None):   # fetching total donaiton thr
           AND dn.due_date BETWEEN %s AND %s
           AND dn.docstatus = 1
           AND dn.status = 'Paid'
+          AND (dn.contribution_type IS NULL OR dn.contribution_type != 'Pledge')
         """,
         (donor, fy.year_start_date, fy.year_end_date),
         as_dict=True,
@@ -111,9 +113,10 @@ def get_total_donation(donor, fiscal_year=None):   # fetching total donaiton thr
     if total == 0:
         return {
             "total_donation": 0,
-            "message": _("No paid donations found for donor '{0}' in fiscal year '{1}'.").format(
+            "message": _("No paid (non-pledge) donations found for donor '{0}' in fiscal year '{1}'.").format(
                 donor, fiscal_year
             ),
         }
 
     return {"total_donation": total}
+
