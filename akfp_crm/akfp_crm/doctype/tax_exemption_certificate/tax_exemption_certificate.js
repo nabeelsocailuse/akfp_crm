@@ -10,17 +10,22 @@ frappe.ui.form.on("Tax Exemption Certificate", {
     fetch_total_donation(frm);
   },
 
-  // date_of_issue: function (frm) {
-  //   validate_date_of_issue(frm);
-  // },
-
   after_save: function (frm) {
-    // Make total_donation read-only after saving
-    frm.set_df_property("donor", "read_only", 1);
-    frm.set_df_property("fiscal_year", "read_only", 1);
-    frm.set_df_property("date_of_issue", "read_only", 1)
+    make_fields_readonly(frm);
+  },
+
+  refresh: function (frm) {
+    if (!frm.is_new()) {
+      make_fields_readonly(frm);
+    }
   },
 });
+
+function make_fields_readonly(frm) {
+  frm.set_df_property("donor", "read_only", 1);
+  frm.set_df_property("fiscal_year", "read_only", 1);
+  frm.set_df_property("date_of_issue", "read_only", 1);
+}
 
 // Validate that Date of Issue cannot be earlier than today
 // function validate_date_of_issue(frm) {

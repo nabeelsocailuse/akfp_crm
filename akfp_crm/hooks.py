@@ -138,24 +138,28 @@ doc_events = {
 
 # Scheduled Tasks
 # ---------------
+# in akf_crm/hooks.py
 
-# scheduler_events = {
+
+
+scheduler_events = {
 # 	"all": [
 # 		"akfp_crm.tasks.all"
 # 	],
-# 	"daily": [
-# 		"akfp_crm.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"akfp_crm.tasks.hourly"
-# 	],
+	"daily": [
+        "akfp_crm.akfp_crm.doctype.tax_exemption_certificate.tax_exemption_certificate.daily_tax_certificate_job"
+    
+	],
+	# "hourly": [
+    #       "akfp_crm.akfp_crm.doctype.tax_exemption_certificate.tax_exemption_certificate.daily_tax_certificate_job"
+	# ],
 # 	"weekly": [
 # 		"akfp_crm.tasks.weekly"
 # 	],
 # 	"monthly": [
 # 		"akfp_crm.tasks.monthly"
 # 	],
-# }
+}
 
 # Testing
 # -------
