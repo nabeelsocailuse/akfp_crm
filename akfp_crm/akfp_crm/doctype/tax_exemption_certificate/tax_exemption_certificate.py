@@ -15,6 +15,7 @@ class TaxExemptionCertificate(Document):
     def validate(self):
         self.validate_date_of_issue()
         self.make_donor_readonly()
+        self.validate_total_donation()
 
     def validate_date_of_issue(self): ## date of issue should not be less then today 
         if not self.date_of_issue:
@@ -36,6 +37,18 @@ class TaxExemptionCertificate(Document):
                 _("Donor field cannot be changed after creation."),
                 title=_("Read-Only Field")
             )        
+
+    def validate_total_donation(self):
+        try:
+            amount = float(self.total_donation or 0)
+        except Exception:
+            amount = 0
+
+        if amount <= 0:
+            frappe.throw(
+                _("Total donation is zero. Cannot create a Tax Exemption Certificate without a positive donation amount."),
+                title=_("Invalid Total Donation")
+            )
 
 
     def before_insert(self):
@@ -151,7 +164,6 @@ def generate_all_certificates():
 
     fy = frappe.get_doc("Fiscal Year", fiscal_year)
 
-    # ✅ Use finalized query for fetching all donors’ total donations
     donors = frappe.db.sql(
         """
         SELECT 

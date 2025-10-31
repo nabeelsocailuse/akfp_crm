@@ -131,7 +131,10 @@ page_renderer = ["akfp_crm.akfp_crm.page_renderers.verification_page.Verificatio
 
 doc_events = {
     "Donation": {
-        "on_submit": "akfp_crm.return_emails.send_return_donation_email"
+        "on_submit": "akfp_crm.donation_emails.send_return_donation_email"
+    },
+    "Payment Entry": {
+        "on_submit": "akfp_crm.donation_emails.send_thank_you_email"
     }
 }
 
@@ -147,7 +150,10 @@ scheduler_events = {
 # 		"akfp_crm.tasks.all"
 # 	],
 	"daily": [
-        "akfp_crm.akfp_crm.doctype.tax_exemption_certificate.tax_exemption_certificate.daily_tax_certificate_job"
+        "akfp_crm.akfp_crm.doctype.tax_exemption_certificate.tax_exemption_certificate.daily_tax_certificate_job",
+        "akfp_crm.donation_emails.check_sponsorships"
+        "akfp_crm.donation_emails.check_sponsorship_expiry"
+
     
 	],
 	# "hourly": [
