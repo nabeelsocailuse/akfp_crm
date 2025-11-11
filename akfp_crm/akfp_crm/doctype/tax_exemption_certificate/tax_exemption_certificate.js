@@ -10,6 +10,12 @@ frappe.ui.form.on("Tax Exemption Certificate", {
     fetch_total_donation(frm);
   },
 
+  currency: function (frm) {
+    if (frm.doc.donor && frm.doc.fiscal_year) {
+      fetch_total_donation(frm);
+    }
+  },
+
   after_save: function (frm) {
     make_fields_readonly(frm);
   },
@@ -55,21 +61,30 @@ function fetch_total_donation(frm) {
 
   if (!frm.doc.donor || !frm.doc.fiscal_year) return;
 
+  // Get currency from form field or let backend fetch from donor's default_currency
+  const currency = frm.doc.currency || null;
+
   frappe.call({
     method: "akfp_crm.akfp_crm.doctype.tax_exemption_certificate.tax_exemption_certificate.get_total_donation",
     args: {
       donor: frm.doc.donor,
       fiscal_year: frm.doc.fiscal_year,
+      currency: currency,
     },
     callback: function (r) {
       if (!r.message) return;
 
-      const { total_donation, message, currency, currency_symbol, show_currency_symbol } = r.message;
+      const { total_donation, message, currency: returned_currency, currency_symbol, show_currency_symbol } = r.message;
 
       if (total_donation) {
+        // Update currency field if returned from backend
+        if (returned_currency && !frm.doc.currency) {
+          frm.set_value("currency", returned_currency);
+        }
+        
         const formatted = formatInternationalNumber(total_donation);
-        if (show_currency_symbol && (currency_symbol || currency)) {
-          const sym = currency_symbol || currency;
+        if (show_currency_symbol && (currency_symbol || returned_currency)) {
+          const sym = currency_symbol || returned_currency;
           frm.set_value("total_donation", `${sym} ${formatted}`);
         } else {
           frm.set_value("total_donation", formatted);

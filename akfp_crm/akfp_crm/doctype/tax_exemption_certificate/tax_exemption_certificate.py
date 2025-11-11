@@ -6,7 +6,7 @@ import base64
 import qrcode
 import io
 from frappe.model.document import Document
-from frappe.utils import now_datetime, get_url, getdate, nowdate
+from frappe.utils import now_datetime, get_url, getdate, nowdate, today
 from frappe.core.doctype.communication.email import make
 from frappe import _
 
@@ -17,33 +17,24 @@ class TaxExemptionCertificate(Document):
         self.make_donor_readonly()
         self.validate_total_donation()
 
-    def validate_date_of_issue(self): ## date of issue should not be less then today 
+    def validate_date_of_issue(self):
+        """Ensure date of issue is not earlier than today."""
         if not self.date_of_issue:
             return
-
-        today = getdate(nowdate())
+        today_date = getdate(nowdate())
         issue_date = getdate(self.date_of_issue)
-
-        if issue_date < today:
-            frappe.throw(
-                _("Date of Issue cannot be earlier than today."),
-                title=_("Invalid Date")
-            )
-
+        if issue_date < today_date:
+            frappe.throw(_("Date of Issue cannot be earlier than today."), title=_("Invalid Date"))
 
     def make_donor_readonly(self):
+        """Donor cannot be changed after creation."""
         if not self.is_new() and self.has_value_changed("donor"):
-            frappe.throw(
-                _("Donor field cannot be changed after creation."),
-                title=_("Read-Only Field")
-            )        
+            frappe.throw(_("Donor field cannot be changed after creation."), title=_("Read-Only Field"))
 
     def validate_total_donation(self):
-        try:
-            amount = float(self.total_donation or 0)
-        except Exception:
-            amount = 0
-
+        """Ensure total donation is positive."""
+        amount_str = str(self.total_donation or "0").replace(",", "").strip()
+        amount = float(amount_str or 0)
         if amount <= 0:
             frappe.throw(
                 _("Total donation is zero. Cannot create a Tax Exemption Certificate without a positive donation amount."),
@@ -52,10 +43,10 @@ class TaxExemptionCertificate(Document):
 
 
     def before_insert(self):
+        """Auto-generate certificate number and timestamp."""
         if not self.certificate_number:
             current_year = now_datetime().year
             prefix = f"TEX-{current_year}-"
-
             last_cert = frappe.db.sql(
                 """
                 SELECT certificate_number 
@@ -67,7 +58,6 @@ class TaxExemptionCertificate(Document):
                 (f"{prefix}%",),
                 as_dict=True,
             )
-
             last_number = (
                 int(last_cert[0].certificate_number.split("-")[-1]) + 1
                 if last_cert
@@ -78,7 +68,8 @@ class TaxExemptionCertificate(Document):
         if not self.generated_timestamp:
             self.generated_timestamp = now_datetime()
 
-    def get_qr_code(self):  ##generate qr code 
+    def get_qr_code(self):
+        """Generate QR code for verification URL."""
         url = get_url(f"/verify-certificate?name={self.name}")
         qr = qrcode.QRCode(
             version=1,
@@ -88,25 +79,24 @@ class TaxExemptionCertificate(Document):
         )
         qr.add_data(url)
         qr.make(fit=True)
-
         img = qr.make_image(fill_color="black", back_color="white")
         buf = io.BytesIO()
         img.save(buf, format="PNG")
         return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
 
 
-
-# import frappe
-# from frappe.utils import nowdate, now_datetime, _
-# from frappe.core.doctype.communication.email import make
-
 @frappe.whitelist()
-def get_total_donation(donor, fiscal_year=None):
-    """Get total valid donations for a donor using finalized GL Entry query."""
+def get_total_donation(donor, fiscal_year=None, currency=None):
+    """Get total valid donations for a donor for a given fiscal year and currency."""
     if not donor:
         return {"total_donation": 0, "message": _("Please select a donor first.")}
     if not fiscal_year:
         return {"total_donation": 0, "message": _("Please select a fiscal year.")}
+
+    if not currency:
+        currency = frappe.db.get_value("Donor", donor, "default_currency")
+    if not currency:
+        return {"total_donation": 0, "message": _("Currency not specified or missing in donor record.")}
 
     fy = frappe.db.get_value(
         "Fiscal Year", fiscal_year, ["year_start_date", "year_end_date"], as_dict=True
@@ -114,72 +104,65 @@ def get_total_donation(donor, fiscal_year=None):
     if not fy:
         return {"total_donation": 0, "message": _("Fiscal Year not found.")}
 
-    # ✅ Use finalized query logic
     result = frappe.db.sql(
         """
         SELECT 
-            donor,
-            (SELECT donor_name FROM `tabDonor` WHERE name = gl.donor) AS donor_name,
-            account_currency,
-            fiscal_year,
-            SUM(credit_in_account_currency) AS cr
-        FROM `tabGL Entry` gl
+            SUM(IFNULL(credit_in_transaction_currency, credit_in_account_currency)) AS cr,
+            SUM(IFNULL(debit_in_transaction_currency, debit_in_account_currency)) AS dr
+        FROM `tabGL Entry`
         WHERE
             is_cancelled = 0
             AND against_voucher_type = 'Donation'
-            AND IFNULL(donor, '') != ''
-            AND gl.donor = %s
-            AND gl.fiscal_year = %s
-        GROUP BY donor, account_currency, fiscal_year
+            AND donor = %s
+            AND fiscal_year = %s
+            AND transaction_currency = %s
+            AND (IFNULL(party_type, '') = '' OR party_type IS NULL)
         """,
-        (donor, fiscal_year),
+        (donor, fiscal_year, currency),
         as_dict=True,
     )
 
-    total_donation = result[0].cr if result else 0
-
-    if not total_donation or total_donation <= 0:
+    total_donation = (result[0].cr or 0) - (result[0].dr or 0) if result else 0
+    if total_donation <= 0:
         return {
             "total_donation": 0,
-            "message": _("No valid donation amount found for donor '{0}' in fiscal year '{1}'.").format(
-                donor, fiscal_year
-            ),
+            "message": _("No valid donation amount found for donor '{0}' in fiscal year '{1}' for currency '{2}'.")
+            .format(donor, fiscal_year, currency),
         }
 
-    return {"total_donation": total_donation}
+    return {"total_donation": total_donation, "currency": currency}
 
 
 @frappe.whitelist()
 def generate_all_certificates():
-    """Generate tax exemption certificates, create PDF, and send email to donors."""
-    today = frappe.utils.nowdate()
+    """Generate Tax Exemption Certificates for all donors in the current fiscal year."""
+    today_date = nowdate()
     fiscal_year = frappe.db.get_value(
         "Fiscal Year",
-        {"year_start_date": ["<=", today], "year_end_date": [">=", today]},
+        {"year_start_date": ["<=", today_date], "year_end_date": [">=", today_date]},
         "name"
     )
-
     if not fiscal_year:
-        frappe.throw(_("No active Fiscal Year found for today."))
+        return _("No active Fiscal Year found for today.")
 
     fy = frappe.get_doc("Fiscal Year", fiscal_year)
-
     donors = frappe.db.sql(
         """
         SELECT 
             donor,
-            (SELECT donor_name FROM `tabDonor` WHERE name = gl.donor) AS donor_name,
-            account_currency,
-            fiscal_year,
-            SUM(credit_in_account_currency) AS cr
-        FROM `tabGL Entry` gl
+            transaction_currency AS account_currency,
+            SUM(IFNULL(credit_in_transaction_currency, credit_in_account_currency)) AS cr,
+            SUM(IFNULL(debit_in_transaction_currency, debit_in_account_currency)) AS dr
+        FROM `tabGL Entry`
         WHERE
             is_cancelled = 0
             AND against_voucher_type = 'Donation'
             AND IFNULL(donor, '') != ''
-            AND gl.fiscal_year = %s
-        GROUP BY donor, account_currency, fiscal_year
-        HAVING cr > 0
+            AND fiscal_year = %s
+            AND (IFNULL(party_type, '') = '' OR party_type IS NULL)
+        GROUP BY donor, transaction_currency
+        HAVING (SUM(IFNULL(credit_in_transaction_currency, credit_in_account_currency)) -
+                SUM(IFNULL(debit_in_transaction_currency, debit_in_account_currency))) > 0
         """,
         (fiscal_year,),
         as_dict=True,
@@ -188,27 +171,24 @@ def generate_all_certificates():
     if not donors:
         return _("No donors found with valid donations in the current fiscal year.")
 
-    created = []
-    skipped = []
+    created, skipped = [], []
 
     for d in donors:
-        donor = d.donor
-        total_donation = d.cr or 0
+        donor, currency = d.donor, d.account_currency
+        total_donation = (d.cr or 0) - (d.dr or 0)
 
-        exists = frappe.db.exists("Tax Exemption Certificate", {"donor": donor, "fiscal_year": fiscal_year})
-        if exists:
-            skipped.append(donor)
+        if frappe.db.exists("Tax Exemption Certificate", {"donor": donor, "fiscal_year": fiscal_year, "currency": currency}):
+            skipped.append(f"{donor} ({currency})")
             continue
 
         donor_doc = frappe.get_doc("Donor", donor)
-
         cert = frappe.get_doc({
             "doctype": "Tax Exemption Certificate",
             "donor": donor,
             "donor_name": donor_doc.donor_name,
             "donor_address": donor_doc.address,
             "donor_cnic__ntn": donor_doc.cnic,
-            "currency": donor_doc.default_currency,
+            "currency": currency,
             "fiscal_year": fiscal_year,
             "date_of_issue": nowdate(),
             "total_donation": total_donation,
@@ -217,14 +197,13 @@ def generate_all_certificates():
         cert.insert(ignore_permissions=True)
         created.append(cert.name)
 
-        pdf_file = frappe.get_print(
-            doctype="Tax Exemption Certificate",
-            name=cert.name,
-            print_format="Tax Exemption Certificate format",
-            as_pdf=True
-        )
-
         if donor_doc.email:
+            pdf_file = frappe.get_print(
+                doctype="Tax Exemption Certificate",
+                name=cert.name,
+                print_format="Tax Exemption Certificate format",
+                as_pdf=True
+            )
             make(
                 recipients=donor_doc.email,
                 subject=f"Tax Exemption Certificate - {cert.certificate_number}",
@@ -236,18 +215,17 @@ def generate_all_certificates():
 
     frappe.db.commit()
 
-    msg = _("Created {0} Tax Exemption Certificates. Skipped {1} donors.").format(len(created), len(skipped))
+    msg = _("Created {0} Certificates. Skipped {1}.").format(len(created), len(skipped))
     if created:
-        msg += "<br><b>Created Certificates:</b><br>" + "<br>".join(created)
+        msg += "<br><b>Created:</b><br>" + "<br>".join(created)
     if skipped:
-        msg += "<br><b>Skipped Donors:</b><br>" + "<br>".join(skipped)
-
+        msg += "<br><b>Skipped:</b><br>" + "<br>".join(skipped)
     return msg
 
 
 @frappe.whitelist(allow_guest=True)
 def get_certificate_details(name=None):
-    """API endpoint to fetch certificate details for verification page / QR code."""
+    """Public API endpoint to fetch certificate details via QR verification."""
     if not name:
         return {"valid": False, "message": "No certificate ID specified."}
     cert = frappe.db.get("Tax Exemption Certificate", name)
@@ -255,40 +233,42 @@ def get_certificate_details(name=None):
         return {"valid": False, "message": "Certificate not found."}
 
     if "total_donation" in cert:
-        cert["total_donation"] = float(cert["total_donation"]) if cert["total_donation"] is not None else 0
+        cert["total_donation"] = float(cert["total_donation"] or 0)
     if "generated_timestamp" in cert and cert["generated_timestamp"]:
         cert["generated_timestamp"] = str(cert["generated_timestamp"])
 
-    result = {
-        "valid": True,
-        "certificate": cert
-    }
-    return result
+    return {"valid": True, "certificate": cert}
 
 
 @frappe.whitelist()
-def daily_tax_certificate_job():  ##only generate the certificates on last day of fiscal year
-    settings = frappe.get_doc("FCRM Settings")
-    if not getattr(settings, "enable", False):
-        return "Automation disabled in FCRM Settings."
+def daily_tax_certificate_job():
+    try:
+        settings = frappe.get_doc("FCRM Settings")
+        if not getattr(settings, "enable", False):
+            return "Automation disabled in FCRM Settings."
 
-    today = frappe.utils.nowdate()
+        today_date = getdate(today())
+        fiscal_year = frappe.db.get_value(
+            "Fiscal Year",
+            {"year_start_date": ("<=", today_date), "year_end_date": (">=", today_date), "disabled": 0},
+            ["name", "year_end_date"],
+            as_dict=True
+        )
 
-    fiscal_year = frappe.db.get_value(
-        "Fiscal Year",
-        {"year_start_date": ["<=", today], "year_end_date": [">=", today]},
-        "name"
-    )
+        if not fiscal_year:
+            return f"No active fiscal year found for today ({today_date})."
 
-    if not fiscal_year:
-        return "No active Fiscal Year found for today."
+        fiscal_year_name = fiscal_year.name
+        fiscal_year_end = getdate(fiscal_year.year_end_date)
 
-    fy = frappe.get_doc("Fiscal Year", fiscal_year)
+        if today_date == fiscal_year_end:
+            result = generate_all_certificates()
+            frappe.db.commit()
+            return f"✅ Certificates generated for fiscal year {fiscal_year_name}. Result: {result}"
 
-    if str(today) != str(fy.year_end_date):
-        return f"Not the end of fiscal year ({fy.year_end_date}). Skipping certificate generation."
+        return f"Not the last day of fiscal year {fiscal_year} - no action taken."
 
-    result = generate_all_certificates()
-
-    return f"Tax certificate process executed for fiscal year {fiscal_year}. Result: {result}"
-
+    except Exception as e:
+        error_msg = f"❌ Error in daily tax certificate job: {str(e)}"
+        frappe.log_error(error_msg, "Tax Certificate Job Error")
+        return error_msg

@@ -146,26 +146,13 @@ doc_events = {
 
 
 scheduler_events = {
-# 	"all": [
-# 		"akfp_crm.tasks.all"
-# 	],
-	"daily": [
+    "daily": [
+        "akfp_crm.donation_emails.close_expired_sponsorships",
         "akfp_crm.akfp_crm.doctype.tax_exemption_certificate.tax_exemption_certificate.daily_tax_certificate_job",
-        "akfp_crm.donation_emails.check_sponsorships"
-        "akfp_crm.donation_emails.check_sponsorship_expiry"
-
-    
-	],
-	# "hourly": [
-    #       "akfp_crm.akfp_crm.doctype.tax_exemption_certificate.tax_exemption_certificate.daily_tax_certificate_job"
-	# ],
-# 	"weekly": [
-# 		"akfp_crm.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"akfp_crm.tasks.monthly"
-# 	],
+        "akfp_crm.donation_emails.send_pledge_reminder_emails"
+    ]
 }
+
 
 # Testing
 # -------
